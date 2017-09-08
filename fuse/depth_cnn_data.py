@@ -35,7 +35,7 @@ class Data():
         self.num_step = 5
         self.image_channel = 1 if mode=='gray' else 3
         if attr_num == 8:
-            self.attribute_labels = np.load('../data/a8.npy')
+            self.attribute_labels = np.load('../data/three_value_a8v2.npy')
         elif attr_num == 12:
             self.attribute_labels = np.load('../data/a12.npy')
         else:
@@ -55,7 +55,8 @@ class Data():
         return np.array(ret)
 
     def S(self,train):
-        return self.get_train_attr_label().T if train else self.get_test_attr_label().T
+        S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
+        return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
 
     def get_large_label(self, little_label):
         for i in range(8):
@@ -104,5 +105,3 @@ class Data():
                                                       self.target_size, self.target_size,self.image_channel)
         return train_depimas, train_depimas_labels, train_depimas_attr_labels, test_depimas, test_depimas_labels
 
-ld = Data(8)
-ld.load_gelsight_data()

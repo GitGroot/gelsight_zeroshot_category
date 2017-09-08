@@ -37,22 +37,10 @@ train_op = tf.train.AdamOptimizer(lr).minimize(cost, var_list=network.all_params
 batch_size = 10
 lr = 1e-5
 
-print network.all_params[-4:]
-print '....................'
-print network.all_params
 initialize_global_variables(sess)
 if train:
-    params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
-    tl.files.assign_params(sess, params, network)
-    # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + '1' + '.npz')
+    # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
     # tl.files.assign_params(sess, params, network)
-    # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '-2' + '.npz')
-    # tl.files.assign_params(sess, params, network)
-    # v_params = tl.files.load_npz(path='../npz/cnnlstm_joint_loss/', name='cnnlstm_rand1.npz1.npz')
-    # tl.files.assign_params(sess, v_params[:-2], video_net)
-    # d_params = tl.files.load_npz(path='../npz/depth/', name='depthcnn1.npz1.npz')
-    # tl.files.assign_params(sess, d_params[:-2], depth_net)
-
     for i in range(300):
         for iter_num in range(int(math.ceil(len(train_videos)/batch_size))):
             video, depima = ld.get_content(train_videos[iter_num * batch_size:(iter_num + 1) * batch_size],

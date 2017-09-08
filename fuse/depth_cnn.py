@@ -8,7 +8,7 @@ from config.depth_config.config import *
 from tool.lib import log2
 import math
 
-train = False
+train = True
 x = tf.placeholder(tf.float32, [None, image_size, image_size, image_channel])
 S = tf.placeholder(tf.float32, [attr_num, None])
 network = depth_cnn.build_net(None, x, attr_num)
@@ -34,8 +34,8 @@ cost = class_cost +  lam*attr_cost
 train_op = tf.train.AdamOptimizer(lr).minimize(cost)
 initialize_global_variables(sess)
 if train:
-    # params = tl.files.load_npz(path='../npz/depth/', name=params_file_name + str(lam) + '.npz')
-    # tl.files.assign_params(sess, params, network)
+    params = tl.files.load_npz(name=params_file_name)
+    tl.files.assign_params(sess, params, network)
     for i in range(300):
         for iter_num in range(int(math.ceil(len(train_videos)/batch_size))):
             video = train_videos[iter_num * batch_size:(iter_num + 1) * batch_size]
@@ -45,8 +45,9 @@ if train:
             feed_dict.update(network.all_drop)
             _, cost_val, acc_val = sess.run([train_op, cost, acc], feed_dict=feed_dict)
             log2(i, iter_num, cost_val, acc_val, '../log/depth/' + log_name + str(lam))
+            print sess.run(attr_cost, feed_dict=feed_dict)
         if should_record(i):
-            tl.files.save_npz(network.all_params, '../npz/depth/' + params_file_name + str(lam), sess)
+            tl.files.save_npz(network.all_params, params_file_name, sess)
 else:
     params = tl.files.load_npz(path='../npz/depth/', name=params_file_name + str(lam) + '.npz')
     tl.files.assign_params(sess, params, network)
