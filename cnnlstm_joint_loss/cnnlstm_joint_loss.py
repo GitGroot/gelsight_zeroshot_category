@@ -1,4 +1,6 @@
 from tensorlayer.layers import *
+import sys
+sys.path.append('../')
 from tool.util import plot_confusion_matrix
 from net import cnn_lstm
 import tensorlayer as tl
@@ -7,6 +9,7 @@ from Data2 import Data
 import math
 from config.config import *
 from tool.lib import log2
+
 
 train = False
 x = tf.placeholder(tf.float32, [None, num_steps, image_size, image_size, image_channel])
@@ -31,13 +34,14 @@ train_videos, train_videos_labels, train_videos_attr_labels, test_videos, test_v
     = ld.get_train_test()
 sess = tf.Session()
 lam = 1
-cost = class_cost +  lam*attr_cost
+lr = 1e-5
+cost = class_cost + lam*attr_cost
 train_op = tf.train.AdamOptimizer(lr).minimize(cost)
 initialize_global_variables(sess)
 if train:
-    params = tl.files.load_npz(path='../npz/cnnlstm_joint_loss/', name=params_file_name + str(lam)+'normal' + '.npz')
+    params = tl.files.load_npz(name=params_file_name)
     tl.files.assign_params(sess, params, network)
-    for i in range(150):
+    for i in range(1000):
         for iter_num in range(int(math.ceil(len(train_videos)/batch_size))):
             video = train_videos[iter_num * batch_size:(iter_num + 1) * batch_size]
             label = train_videos_labels[iter_num * batch_size:(iter_num + 1) * batch_size]
@@ -46,10 +50,12 @@ if train:
             feed_dict.update(network.all_drop)
             _, cost_val, acc_val = sess.run([train_op, cost, acc], feed_dict=feed_dict)
             log2(i, iter_num, cost_val, acc_val, '../log/cnnlstm_joint_loss/' + log_name + str(lam))
+            print sess.run(attr_cost, feed_dict=feed_dict)
         if should_record(i):
-            tl.files.save_npz(network.all_params, '../npz/cnnlstm_joint_loss/'+params_file_name + str(lam)+'normal', sess)
+            tl.files.save_npz(network.all_params, params_file_name, sess)
+            #tl.files.save_npz(network.all_params, params_file_name + str(lam) + 'lx', sess)
 else:
-    params = tl.files.load_npz(path='../npz/cnnlstm_joint_loss/', name=params_file_name + str(lam)+'normal' + '.npz')
+    params = tl.files.load_npz(name=params_file_name)
     tl.files.assign_params(sess, params, network)
     dp_dict = tl.utils.dict_to_one(network.all_drop)
     print 'ok'

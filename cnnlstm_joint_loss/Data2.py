@@ -21,8 +21,10 @@ class Data():
         self.mode = mode
         self.num_step = 5
         self.image_channel = 1 if mode=='gray' else 3
-        if attr_num == 8:
-            self.attribute_labels = np.load('../data/a8.npy')
+        if attr_num == 4:
+            self.attribute_labels = np.load('../data/class_mean.npy')*10
+        elif attr_num == 8:
+            self.attribute_labels = np.load('../data/three_value_a8v2.npy')
         elif attr_num == 12:
             self.attribute_labels = np.load('../data/a12.npy')
         else:
@@ -43,6 +45,7 @@ class Data():
 
     def S(self,train):
         S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
+        #return S
         return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
 
     def get_large_label(self, little_label):
