@@ -8,7 +8,7 @@ from config.depth_config.config import *
 from tool.lib import log2
 import math
 
-train = True
+train = False
 x = tf.placeholder(tf.float32, [None, image_size, image_size, image_channel])
 S = tf.placeholder(tf.float32, [attr_num, None])
 network = depth_cnn.build_net(None, x, attr_num)
@@ -49,7 +49,7 @@ if train:
         if should_record(i):
             tl.files.save_npz(network.all_params, params_file_name, sess)
 else:
-    params = tl.files.load_npz(path='../npz/depth/', name=params_file_name + str(lam) + '.npz')
+    params = tl.files.load_npz(name=params_file_name)
     tl.files.assign_params(sess, params, network)
     dp_dict = tl.utils.dict_to_one(network.all_drop)
     print 'ok'

@@ -1,4 +1,6 @@
 from tensorlayer.layers import *
+import sys
+sys.path.append('../')
 from tool.util import plot_confusion_matrix
 from net import fuse_net
 import tensorlayer as tl
@@ -32,7 +34,8 @@ train_videos, train_depimas, train_labels, train_attr_labels, test_videos, test_
     = ld.get_train_test()
 sess = tf.Session()
 lam = 1
-cost = class_cost + lam * attr_cost
+# cost = class_cost + lam * attr_cost
+cost = attr_cost
 train_op = tf.train.AdamOptimizer(lr).minimize(cost, var_list=network.all_params[:])
 batch_size = 10
 lr = 1e-5
@@ -41,6 +44,11 @@ initialize_global_variables(sess)
 if train:
     # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
     # tl.files.assign_params(sess, params, network)
+    # video_params = tl.files.load_npz(path='../cnnlstm_joint_loss/', name='cnnlstm_rand1.npz')
+    # depth_params = tl.files.load_npz(name='depthcnn1.npz')
+    # tl.files.assign_params(sess, video_params[:-2], video_net)
+    # tl.files.assign_params(sess, depth_params[:-2], depth_net)
+
     for i in range(300):
         for iter_num in range(int(math.ceil(len(train_videos)/batch_size))):
             video, depima = ld.get_content(train_videos[iter_num * batch_size:(iter_num + 1) * batch_size],
@@ -52,12 +60,12 @@ if train:
             _, cost_val, acc_val, attr_cost_val = sess.run([train_op, cost, acc, attr_cost], feed_dict=feed_dict)
             log2(i, iter_num, cost_val, acc_val, '../log/fuse/' + log_name + str(lam))
             print attr_cost_val
-        tl.files.save_npz(network.all_params, '../npz/fuse/'+params_file_name + str(lam), sess)
+        tl.files.save_npz(network.all_params, params_file_name + 'fuse', sess)
         #tl.files.save_npz(network.all_params, '../npz/fuse/'+params_file_name + str(lam) + '-2', sess)
 else:
+    params = tl.files.load_npz(name=params_file_name + 'fuse' + '.npz')
     # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
     # tl.files.assign_params(sess, params, network)
-    params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
     tl.files.assign_params(sess, params, network)
     dp_dict = tl.utils.dict_to_one(network.all_drop)
     print 'ok'
