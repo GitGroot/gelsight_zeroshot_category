@@ -56,7 +56,8 @@ class Data():
 
     def S(self,train):
         S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
-        return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
+#        return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
+        return S
 
     def get_large_label(self, little_label):
         for i in range(8):

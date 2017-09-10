@@ -42,8 +42,8 @@ lr = 1e-5
 
 initialize_global_variables(sess)
 if train:
-    # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
-    # tl.files.assign_params(sess, params, network)
+    params = tl.files.load_npz(name=params_file_name + 'fuse' + '.npz')
+    tl.files.assign_params(sess, params, network)
     # video_params = tl.files.load_npz(path='../cnnlstm_joint_loss/', name='cnnlstm_rand1.npz')
     # depth_params = tl.files.load_npz(name='depthcnn1.npz')
     # tl.files.assign_params(sess, video_params[:-2], video_net)
@@ -64,8 +64,6 @@ if train:
         #tl.files.save_npz(network.all_params, '../npz/fuse/'+params_file_name + str(lam) + '-2', sess)
 else:
     params = tl.files.load_npz(name=params_file_name + 'fuse' + '.npz')
-    # params = tl.files.load_npz(path='../npz/fuse/', name=params_file_name + str(lam) + '.npz')
-    # tl.files.assign_params(sess, params, network)
     tl.files.assign_params(sess, params, network)
     dp_dict = tl.utils.dict_to_one(network.all_drop)
     print 'ok'

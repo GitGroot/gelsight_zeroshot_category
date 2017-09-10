@@ -12,8 +12,8 @@ attr_num = 8
 loss_fn = tf.square
 
 # data params
-test_large_label = [0, 4, 7]
-train_large_label = [1, 2, 3, 5, 6]
+test_large_label = [0, 5, 7]
+train_large_label = [1, 2, 3, 4, 6]
 test_label_num = 3
 train_label_num = 5
 data_path = '/home/unreal/gelsight/fuse2/fuse/data/gel_rand3_224'

@@ -11,14 +11,15 @@ from config.config import *
 from tool.lib import log2
 
 
-train = False
+train = True
 x = tf.placeholder(tf.float32, [None, num_steps, image_size, image_size, image_channel])
 S = tf.placeholder(tf.float32, [attr_num, None])
+b = tf.placeholder(tf.float32, [None])
 inputs = tf.reshape(x, shape=[-1, image_size, image_size, image_channel])
 network = cnn_lstm.build_net(None, inputs, num_steps, attr_num)
 a = network.outputs
 
-y = tf.matmul(a, S)
+y = tf.matmul(a, S) + b
 y_ = tf.placeholder(dtype=tf.int32, shape=[None])
 a_ = tf.placeholder(dtype=tf.float32, shape=[None, attr_num])
 
@@ -33,29 +34,34 @@ ld = Data(attr_num, mode='rgb')
 train_videos, train_videos_labels, train_videos_attr_labels, test_videos, test_videos_labels \
     = ld.get_train_test()
 sess = tf.Session()
-lam = 1
+lam = 10
 lr = 1e-5
 cost = class_cost + lam*attr_cost
 train_op = tf.train.AdamOptimizer(lr).minimize(cost)
 initialize_global_variables(sess)
 if train:
-    params = tl.files.load_npz(name=params_file_name)
-    tl.files.assign_params(sess, params, network)
+    # params = tl.files.load_npz(name=params_file_name)
+    # tl.files.assign_params(sess, params, network)
+    # params = tl.files.load_npz(name=params_file_name + '057' + '.npz')
+    # tl.files.assign_params(sess, params, network)
+    # params = tl.files.load_npz(name=params_file_name + '057dis' + '.npz')
+    # tl.files.assign_params(sess, params, network)
     for i in range(1000):
         for iter_num in range(int(math.ceil(len(train_videos)/batch_size))):
             video = train_videos[iter_num * batch_size:(iter_num + 1) * batch_size]
             label = train_videos_labels[iter_num * batch_size:(iter_num + 1) * batch_size]
             attr = train_videos_attr_labels[iter_num * batch_size:(iter_num + 1) * batch_size]
-            feed_dict = {x: video, y_: label, a_: attr, S: ld.S(True)}
+            S_val, b_val = ld.S(True)
+            feed_dict = {x: video, y_: label, a_: attr, S: S_val, b: b_val}
             feed_dict.update(network.all_drop)
             _, cost_val, acc_val = sess.run([train_op, cost, acc], feed_dict=feed_dict)
             log2(i, iter_num, cost_val, acc_val, '../log/cnnlstm_joint_loss/' + log_name + str(lam))
             print sess.run(attr_cost, feed_dict=feed_dict)
         if should_record(i):
-            tl.files.save_npz(network.all_params, params_file_name, sess)
+            tl.files.save_npz(network.all_params, params_file_name + '057dis' + str(lam), sess)
             #tl.files.save_npz(network.all_params, params_file_name + str(lam) + 'lx', sess)
 else:
-    params = tl.files.load_npz(name=params_file_name)
+    params = tl.files.load_npz(name=params_file_name + '057dis' + '.npz')
     tl.files.assign_params(sess, params, network)
     dp_dict = tl.utils.dict_to_one(network.all_drop)
     print 'ok'
@@ -67,7 +73,8 @@ else:
         video = test_videos[iter_num*batch_size:(iter_num+1)*batch_size]
         label = test_videos_labels[iter_num*batch_size:(iter_num+1)*batch_size]
         all_y.append(label)
-        feed_dict = {x: video, y_: label, S: ld.S(False)}
+        S_val, b_val = ld.S(False)
+        feed_dict = {x: video, y_: label, S: S_val, b: b_val}
         feed_dict.update(dp_dict)
         correct_num_val = sess.run(correct_num, feed_dict=feed_dict)
         right += correct_num_val

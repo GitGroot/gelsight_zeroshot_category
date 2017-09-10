@@ -45,8 +45,10 @@ class Data():
 
     def S(self,train):
         S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
+        b = [(S[:, i]**2).sum()*(-0.5) for i in range(S.shape[1])]
         #return S
-        return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
+        #return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
+        return S, b
 
     def get_large_label(self, little_label):
         for i in range(8):
@@ -101,3 +103,5 @@ class Data():
         test_videos = np.array(test_videos).reshape(len(test_videos), self.num_step, \
                                                       self.target_size, self.target_size,self.image_channel)
         return train_videos, train_videos_labels, train_videos_attr_labels, test_videos, test_videos_labels
+ld = Data(8)
+print ld.S(False)

@@ -1,4 +1,6 @@
 from tensorlayer.layers import *
+import sys
+sys.path.append('../')
 from tool.util import plot_confusion_matrix
 from net import depth_cnn
 import tensorlayer as tl
