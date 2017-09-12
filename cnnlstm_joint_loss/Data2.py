@@ -49,7 +49,9 @@ class Data():
         #return S
         #return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
         return S, b
-
+    def S_dot(self,train):
+        S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
+        return S
     def S_normal(self,train):
         S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
         return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]

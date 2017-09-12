@@ -34,7 +34,7 @@ ld = Data(attr_num, mode='rgb')
 train_videos, train_videos_labels, train_videos_attr_labels, test_videos, test_videos_labels \
     = ld.get_train_test()
 sess = tf.Session()
-#lam = 1#0,0.1(73.48%),1(70.56%),10(%)
+#lam = 1#0,0.1(73.48%),1(%),10(%)
 lam = eval(sys.argv[1])
 print lam
 lr = 1e-5
@@ -64,7 +64,7 @@ test_label_num = len(test_large_label)
 print train_large_label, test_large_label
 print train_label_num, test_label_num
 def get_filename():
-    return 'randcos('+str(lam)+')'+ to_str(test_large_label)
+    return 'randdot('+str(lam)+')'+ to_str(test_large_label)
 print get_filename()
 
 if train:
@@ -75,7 +75,7 @@ if train:
             video = train_videos[iter_num * batch_size:(iter_num + 1) * batch_size]
             label = train_videos_labels[iter_num * batch_size:(iter_num + 1) * batch_size]
             attr = train_videos_attr_labels[iter_num * batch_size:(iter_num + 1) * batch_size]
-            feed_dict = {x: video, y_: label, a_: attr, S: ld.S_normal(True)}
+            feed_dict = {x: video, y_: label, a_: attr, S: ld.S_dot(True)}
             feed_dict.update(network.all_drop)
             _, cost_val, acc_val = sess.run([train_op, cost, acc], feed_dict=feed_dict)
             log2(i, iter_num, cost_val, acc_val, '../log/cnnlstm_joint_loss/' + log_name +'cos' + str(lam))
@@ -97,7 +97,7 @@ else:
         video = test_videos[iter_num*batch_size:(iter_num+1)*batch_size]
         label = test_videos_labels[iter_num*batch_size:(iter_num+1)*batch_size]
         all_y.append(label)
-        feed_dict = {x: video, y_: label, S: ld.S_normal(False)}
+        feed_dict = {x: video, y_: label, S: ld.S_dot(False)}
         feed_dict.update(dp_dict)
         correct_num_val = sess.run(correct_num, feed_dict=feed_dict)
         right += correct_num_val
