@@ -24,7 +24,7 @@ class Data():
         if attr_num == 4:
             self.attribute_labels = np.load('../data/class_mean.npy')*10
         elif attr_num == 8:
-            self.attribute_labels = np.load('../data/three_value_a8v2.npy')
+            self.attribute_labels = np.load('/home/unreal/gelsight/gelsight_zeroshot_category/data/three_value_a8v2.npy')
         elif attr_num == 12:
             self.attribute_labels = np.load('../data/a12.npy')
         else:
@@ -49,6 +49,10 @@ class Data():
         #return S
         #return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
         return S, b
+
+    def S_normal(self,train):
+        S = self.get_train_attr_label().T if train else self.get_test_attr_label().T
+        return S/[(S[:,i]**2).sum()**0.5 for i in range(S.shape[1])]
 
     def get_large_label(self, little_label):
         for i in range(8):
@@ -103,5 +107,4 @@ class Data():
         test_videos = np.array(test_videos).reshape(len(test_videos), self.num_step, \
                                                       self.target_size, self.target_size,self.image_channel)
         return train_videos, train_videos_labels, train_videos_attr_labels, test_videos, test_videos_labels
-ld = Data(8)
-print ld.S(False)
+

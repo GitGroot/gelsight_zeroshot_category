@@ -95,3 +95,4 @@ class Data():
         test_videos = np.array(test_videos).reshape(len(test_videos), self.num_step, \
                                                       self.target_size, self.target_size,self.image_channel)
         return train_videos, train_videos_labels, test_videos, test_videos_labels
+print 'ok'
